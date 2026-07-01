@@ -19,6 +19,7 @@ void main()async {
   WidgetsFlutterBinding.ensureInitialized();
 
     final isLoggedIn = await TokenStorage.isLoggedIn();
+    await TokenStorage.deleteToken();
 
 
   // 1. Initialize your single-instance backend dependencies
