@@ -1,5 +1,7 @@
+import 'package:alphalens_fend/blocs/company/company_cubit.dart';
 import 'package:alphalens_fend/blocs/login/login_cubit.dart';
 import 'package:alphalens_fend/data/repositories/auth/auth_repository.dart';
+import 'package:alphalens_fend/data/repositories/company/company_repository.dart';
 import 'package:alphalens_fend/ui/auth/screens/login_screen.dart';
 import 'package:alphalens_fend/ui/auth/screens/signup_screen.dart';
 import 'package:alphalens_fend/ui/dashboard/dashboard.dart';
@@ -19,17 +21,20 @@ void main()async {
   WidgetsFlutterBinding.ensureInitialized();
 
     final isLoggedIn = await TokenStorage.isLoggedIn();
-    await TokenStorage.deleteToken();
 
 
   // 1. Initialize your single-instance backend dependencies
   final apiClient = ApiClient();
   final authRepository = AuthRepository(apiClient);
+  final companyRepository = CompanyRepository(apiClient); // 👇 ADD THIS LINE
 
   runApp(
-    // 2. Inject your repository down into the tree
-    RepositoryProvider<AuthRepository>.value(
-      value: authRepository,
+    // 2. Inject BOTH repositories down into the tree using MultiRepositoryProvider
+    MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<AuthRepository>.value(value: authRepository),
+        RepositoryProvider<CompanyRepository>.value(value: companyRepository)
+      ],
       child: AlphaLensApp(isLoggedIn: isLoggedIn),
     ),
   );
@@ -57,6 +62,11 @@ class AlphaLensApp extends StatelessWidget {
           BlocProvider<LoginCubit>(
           create: (context) => LoginCubit(
             RepositoryProvider.of<AuthRepository>(context),
+          ),
+        ),
+           BlocProvider<CompanyCubit>(
+          create: (context) => CompanyCubit(
+            RepositoryProvider.of<CompanyRepository>(context),
           ),
         ),
         

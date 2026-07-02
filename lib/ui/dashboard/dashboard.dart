@@ -1,4 +1,6 @@
 import 'package:alphalens_fend/blocs/theme/theme_cubit.dart';
+import 'package:alphalens_fend/ui/company/company.dart';
+import 'package:alphalens_fend/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -37,6 +39,22 @@ enum DashboardModule {
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
+
+
+  /// Centralized ticker navigation logic
+  void _navigateToTicker(BuildContext context, String ticker) {
+    final cleanTicker = ticker.trim().toUpperCase();
+    if (cleanTicker.isEmpty) return;
+
+    // showFeedback(context, cleanTicker, Colors.blue);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Company(ticker: cleanTicker,),
+      ),
+    );
+    
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -217,11 +235,11 @@ class Dashboard extends StatelessWidget {
                           const SizedBox(height: 90), // Spacing below top navigation bar
                           
                           // Component 1: Search Console
-                          _buildPremiumSearchBar(theme, maxWidth),
+                          _buildPremiumSearchBar(theme, maxWidth, context),
                           const SizedBox(height: 32),
 
                           // Component 2: High-contrast Ticker Badges
-                          _buildPremiumTickerChips(theme),
+                          _buildPremiumTickerChips(theme, context),
                           const SizedBox(height: 40),
 
                           // Sophisticated Custom Micro-Divider Layout
@@ -253,7 +271,7 @@ class Dashboard extends StatelessWidget {
   }
 
   /// COMPONENT 1: Premium Glassmorphic Search Field
-  Widget _buildPremiumSearchBar(ThemeData theme, double maxWidth) {
+  Widget _buildPremiumSearchBar(ThemeData theme, double maxWidth,BuildContext context) {
     final double searchWidth = maxWidth > 600 ? 580 : maxWidth;
 
     return SizedBox(
@@ -270,11 +288,12 @@ class Dashboard extends StatelessWidget {
         ),
         child: TextField(
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+         onSubmitted: (value) => _navigateToTicker(context, value),
           decoration: InputDecoration(
             hintText: 'Search ticker (e.g., TSLA, MSFT)...',
             hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.w400),
             prefixIcon: Icon(Icons.search_rounded, color: theme.colorScheme.primary.withOpacity(0.7)),
-            suffixIcon: Icon(Icons.tune_rounded, color: theme.colorScheme.outline),
+            suffixIcon: Icon(Icons.arrow_right, color: theme.colorScheme.outline),
             contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
             filled: true,
             fillColor: theme.brightness == Brightness.dark 
@@ -299,7 +318,7 @@ class Dashboard extends StatelessWidget {
   }
 
   /// COMPONENT 2: Premium Clean Financial Ticker Micro-Chips
-  Widget _buildPremiumTickerChips(ThemeData theme) {
+  Widget _buildPremiumTickerChips(ThemeData theme, BuildContext context) {
     final tickers = ['TSLA', 'MSFT', 'GOOG', 'META'];
 
     return Wrap(
@@ -307,31 +326,34 @@ class Dashboard extends StatelessWidget {
       runSpacing: 14,
       alignment: WrapAlignment.center,
       children: tickers.map((ticker) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: theme.brightness == Brightness.dark
-                ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.2)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: theme.colorScheme.outline.withOpacity(0.12),
-              width: 1.2,
+        return InkWell(
+          onTap: () => _navigateToTicker(context, ticker),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.2)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: theme.colorScheme.outline.withOpacity(0.12),
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.01),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                )
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.01),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              )
-            ],
-          ),
-          child: Text(
-            ticker,
-            style: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.8,
-              color: theme.colorScheme.onSurface.withOpacity(0.8),
+            child: Text(
+              ticker,
+              style: theme.textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+                color: theme.colorScheme.onSurface.withOpacity(0.8),
+              ),
             ),
           ),
         );

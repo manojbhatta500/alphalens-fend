@@ -1,3 +1,4 @@
+import 'package:alphalens_fend/utils/token_storage.dart';
 import 'package:dio/dio.dart';
 
 class ApiClient {
@@ -6,7 +7,6 @@ class ApiClient {
   ApiClient()
       : _dio = Dio(
           BaseOptions(
-            // Points to localhost port 8000 for your local FastAPI backend server instance
             baseUrl: 'http://localhost:8000',
             connectTimeout: const Duration(seconds: 5),
             receiveTimeout: const Duration(seconds: 5),
@@ -16,7 +16,18 @@ class ApiClient {
             },
           ),
         ) {
-    // Perfect place to append global interceptors for logging or passing JWT auth tokens later
+   
+_dio.interceptors.add(
+  InterceptorsWrapper(
+    onRequest: (options, handler) async {
+      final token = await TokenStorage.getToken();
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
+      handler.next(options);
+    },
+  ),
+);
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
