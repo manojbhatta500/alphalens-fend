@@ -1,6 +1,8 @@
+import 'package:alphalens_fend/blocs/Extract_entity/extract_entity_cubit.dart';
 import 'package:alphalens_fend/blocs/company/company_cubit.dart';
 import 'package:alphalens_fend/blocs/theme/theme_cubit.dart';
 import 'package:alphalens_fend/data/models/company_model.dart';
+import 'package:alphalens_fend/data/models/extract_entity_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,8 +22,10 @@ class _CompanyState extends State<Company> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
+
     context.read<CompanyCubit>().fetchCompanyDetails(widget.ticker);
+    context.read<ExtractEntityCubit>().fetchCompanyEntities(widget.ticker.toUpperCase()); // Trigger the fetch for ExtractEntityCubit
   }
 
   @override
@@ -284,6 +288,7 @@ class _CompanyState extends State<Company> with SingleTickerProviderStateMixin {
           Tab(text: "Business Profile"),
           Tab(text: "Financial Data"),
           Tab(text: "Corporate Team"),
+          Tab(text: "Entities")
         ],
       ),
     );
@@ -301,12 +306,215 @@ class _CompanyState extends State<Company> with SingleTickerProviderStateMixin {
             return _buildFinancialDataTab(theme, company);
           case 2:
             return _buildCorporateTeamTab(theme, company);
+          case 3:
+            return _buildAiEntitiesTab(context, theme, company.symbol.toUpperCase()); 
           default:
             return const SizedBox.shrink();
         }
       },
     );
+  }/// TAB 4: AI Extracted Entities Network (Fully Responsive Grid)
+  Widget _buildAiEntitiesTab(BuildContext context, ThemeData theme, String ticker) {
+    return BlocBuilder<ExtractEntityCubit, ExtractEntityState>(
+      builder: (context, state) {
+        if (state is ExtractEntityLoading) {
+          return  Container(
+            padding: EdgeInsets.all(48),
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(strokeWidth: 3),
+          );
+        }
+
+        if (state is ExtractEntityError) {
+          return Container(
+            padding: const EdgeInsets.all(32),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.error_outline_rounded, color: theme.colorScheme.error, size: 36),
+                const SizedBox(height: 12),
+                Text(
+                  state.message, 
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (state is ExtractEntitySuccess) {
+          final List<Entities> entitiesList = state.extractEntityModel.entities ?? [];
+
+          if (entitiesList.isEmpty) {
+            return Container(
+              padding: const EdgeInsets.all(32),
+              alignment: Alignment.center,
+              child: Text(
+                "No extracted entity data available for $ticker.", 
+                style: theme.textTheme.bodyMedium
+              ),
+            );
+          }
+
+          final Map<String, List<Entities>> groupedEntities = {
+            'PERSON': [],
+            'COMPANY': [],
+            'PRODUCT': [],
+            'PLACE': [],
+          };
+
+          for (var entity in entitiesList) {
+            final type = (entity.entityType ?? '').toUpperCase();
+            if (groupedEntities.containsKey(type)) {
+              groupedEntities[type]!.add(entity);
+            }
+          }
+
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0, left: 4.0),
+                  child: Text(
+                    "AI-Generated Network Analysis for $ticker",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+                _buildHorizontalBlueprintSection(theme, 'Key Personnel', Icons.psychology_rounded, Colors.purple, groupedEntities['PERSON']!),
+                const SizedBox(height: 24),
+                _buildHorizontalBlueprintSection(theme, 'Affiliated Companies', Icons.business_rounded, Colors.orange, groupedEntities['COMPANY']!),
+                const SizedBox(height: 24),
+                _buildHorizontalBlueprintSection(theme, 'Products & Brands', Icons.token_rounded, Colors.green, groupedEntities['PRODUCT']!),
+                const SizedBox(height: 24),
+                _buildHorizontalBlueprintSection(theme, 'Geographic Places', Icons.map_rounded, Colors.blue, groupedEntities['PLACE']!),
+              ],
+            ),
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
+    );
   }
+
+  /// Responsive section that scales column item widths according to device screen space constraints
+  Widget _buildHorizontalBlueprintSection(ThemeData theme, String title, IconData icon, Color color, List<Entities> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              title, 
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(6)),
+              child: Text('${items.length}', style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 11)),
+            )
+          ],
+        ),
+        const SizedBox(height: 12),
+        
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // Determine active column count based on horizontal footprint breakpoint
+            int crossAxisCount = 4;
+            if (constraints.maxWidth < 600) {
+              crossAxisCount = 1; // Pure mobile portrait view standard
+            } else if (constraints.maxWidth < 1000) {
+              crossAxisCount = 2; // Tablet or split-screen mode landscape window
+            }
+
+            // Calculate precise fractional widths factoring in structural margins
+            final double itemWidth = (constraints.maxWidth - ((crossAxisCount - 1) * 12)) / crossAxisCount;
+
+            return Wrap(
+              spacing: 12.0, 
+              runSpacing: 12.0, 
+              children: items.map((item) {
+                final String subText = [
+                  if (item.role.isNotEmpty) item.role,
+                  if (item.details.isNotEmpty) item.details,
+                ].join(' • ');
+
+                return InkWell(
+                  onTap: () async {
+                    if (item.name.isEmpty) return;
+                    final Uri searchUrl = Uri.parse(
+                      'https://www.google.com/search?q=${Uri.encodeComponent(item.name)}'
+                    );
+                    if (await canLaunchUrl(searchUrl)) {
+                      await launchUrl(searchUrl, mode: LaunchMode.externalApplication);
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: itemWidth,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.brightness == Brightness.dark ? theme.colorScheme.surfaceContainerLow : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: theme.colorScheme.outline.withOpacity(0.08)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                item.name,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (subText.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  subText,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontSize: 11,
+                                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                  ),
+                                ),
+                              ]
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.open_in_new_rounded, 
+                          size: 12, 
+                          color: theme.colorScheme.onSurface.withOpacity(0.2)
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
 
   /// TAB 1: Business Profile Canvas (Fixed truncation, embedded link support)
   Widget _buildBusinessProfileTab(ThemeData theme, CompanyModel company) {
@@ -515,6 +723,10 @@ class _CompanyState extends State<Company> with SingleTickerProviderStateMixin {
   }
 
   /// COMPONENT 4: Persistent Analytics Sidebar Terminal
+ 
+ 
+ 
+ 
   Widget _buildPersistentMetricsSidebar(ThemeData theme, CompanyModel company) {
     return Container(
       padding: const EdgeInsets.all(24),

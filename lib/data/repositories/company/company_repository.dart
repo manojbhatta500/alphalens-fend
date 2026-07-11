@@ -6,6 +6,8 @@ class CompanyRepository {
 
   CompanyRepository(this._apiClient);
 
+  
+
   Future<CompanyModel> getCompanyDetails(String ticker) async {
     try {
       final response = await _apiClient.get('/api/company/$ticker');

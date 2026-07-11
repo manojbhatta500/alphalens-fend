@@ -1,7 +1,9 @@
+import 'package:alphalens_fend/blocs/Extract_entity/extract_entity_cubit.dart';
 import 'package:alphalens_fend/blocs/company/company_cubit.dart';
 import 'package:alphalens_fend/blocs/login/login_cubit.dart';
 import 'package:alphalens_fend/data/repositories/auth/auth_repository.dart';
 import 'package:alphalens_fend/data/repositories/company/company_repository.dart';
+import 'package:alphalens_fend/data/repositories/company/extract_entity_repository.dart';
 import 'package:alphalens_fend/ui/auth/screens/login_screen.dart';
 import 'package:alphalens_fend/ui/auth/screens/signup_screen.dart';
 import 'package:alphalens_fend/ui/dashboard/dashboard.dart';
@@ -26,14 +28,16 @@ void main()async {
   // 1. Initialize your single-instance backend dependencies
   final apiClient = ApiClient();
   final authRepository = AuthRepository(apiClient);
-  final companyRepository = CompanyRepository(apiClient); // 👇 ADD THIS LINE
+  final companyRepository = CompanyRepository(apiClient);
+  final extractEntityRepository = ExtractEntityRepository(apiClient); // 👇 ADD THIS LINE
 
   runApp(
     // 2. Inject BOTH repositories down into the tree using MultiRepositoryProvider
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider<AuthRepository>.value(value: authRepository),
-        RepositoryProvider<CompanyRepository>.value(value: companyRepository)
+        RepositoryProvider<CompanyRepository>.value(value: companyRepository),
+        RepositoryProvider<ExtractEntityRepository>.value(value: extractEntityRepository),
       ],
       child: AlphaLensApp(isLoggedIn: isLoggedIn),
     ),
@@ -67,6 +71,11 @@ class AlphaLensApp extends StatelessWidget {
            BlocProvider<CompanyCubit>(
           create: (context) => CompanyCubit(
             RepositoryProvider.of<CompanyRepository>(context),
+          ),
+        ),
+         BlocProvider<ExtractEntityCubit>(
+          create: (context) => ExtractEntityCubit(
+            RepositoryProvider.of<ExtractEntityRepository>(context),
           ),
         ),
         
