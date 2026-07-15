@@ -12,7 +12,6 @@ import 'package:alphalens_fend/utils/token_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// Import your backend data tier modules
 import 'package:alphalens_fend/utils/api_client.dart';
 import 'package:alphalens_fend/blocs/signup/signup_cubit.dart';
 
@@ -21,8 +20,11 @@ import 'blocs/theme/theme_state.dart';
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
+    await TokenStorage.deleteToken();
 
-    final isLoggedIn = await TokenStorage.isLoggedIn();
+     final isLoggedIn = await TokenStorage.isLoggedIn();
+
+
 
 
   // 1. Initialize your single-instance backend dependencies

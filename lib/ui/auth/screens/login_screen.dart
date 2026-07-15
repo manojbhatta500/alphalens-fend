@@ -1,4 +1,5 @@
 import 'package:alphalens_fend/blocs/theme/theme_cubit.dart';
+import 'package:alphalens_fend/ui/auth/widgets/LoginMobile.dart';
 import 'package:alphalens_fend/ui/auth/widgets/login_web.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,7 +32,7 @@ class LoginScreen extends StatelessWidget {
               if (constraints.maxWidth > 600) {
                 return const LoginWeb();
               } else {
-                return const LoginWeb();
+                return const LoginMobile();
               }
             },
           ),

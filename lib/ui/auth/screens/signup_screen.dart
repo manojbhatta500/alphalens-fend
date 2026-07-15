@@ -1,4 +1,5 @@
 import 'package:alphalens_fend/blocs/theme/theme_cubit.dart';
+import 'package:alphalens_fend/ui/auth/widgets/SignupMobile.dart';
 import 'package:alphalens_fend/ui/auth/widgets/signup_web.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,7 +33,7 @@ class SignupScreen extends StatelessWidget {
                 return const SignupWeb();
               } else {
                 // Future mobile placeholder
-                return const SignupWeb();
+                return const SignupMobile();
               }
             },
           ),

@@ -1,4 +1,5 @@
 import 'package:alphalens_fend/blocs/theme/theme_cubit.dart';
+import 'package:alphalens_fend/ui/landing/widgets/OverviewMobileView.dart';
 import 'package:alphalens_fend/ui/landing/widgets/overview_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,7 +33,7 @@ class LandingScreen extends StatelessWidget {
                 return const OverviewWebView();
               } else {
                 // When you make your mobile file later, return OverviewMobileView() here!
-                return const OverviewWebView(); 
+                return const OverviewMobileView(); 
               }
             },
           ),
