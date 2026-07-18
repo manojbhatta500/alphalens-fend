@@ -1,5 +1,6 @@
 import 'package:alphalens_fend/blocs/theme/theme_cubit.dart';
 import 'package:alphalens_fend/ui/company/company.dart';
+import 'package:alphalens_fend/ui/dashboard/widgets/profile_menu_button.dart';
 import 'package:alphalens_fend/utils/token_storage.dart';
 import 'package:alphalens_fend/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -158,73 +159,24 @@ class Dashboard extends StatelessWidget {
                       ),
                       
                       // Global Actions Core
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            style: IconButton.styleFrom(
-                              backgroundColor: theme.colorScheme.surfaceContainerLow.withOpacity(0.5),
-                              padding: const EdgeInsets.all(10),
-                            ),
-                            icon: Icon(
-                              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                              size: 20,
-                            ),
-                            onPressed: () => context.read<ThemeCubit>().toggleTheme(),
-                          ),
-                          const SizedBox(width: 12),
-                          
-                          // Interactive Profile Anchor
-                          PopupMenuButton<String>(
-                            onSelected: (value) {},
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
-                            ),
-                            offset: const Offset(0, 50),
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                              child: Icon(
-                                Icons.person_outline_rounded,
-                                size: 22,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                            itemBuilder: (BuildContext context) => [
-                              const PopupMenuItem(
-                                value: 'settings',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.settings_outlined, size: 18),
-                                    SizedBox(width: 12),
-                                    Text('Settings', style: TextStyle(fontWeight: FontWeight.w500)),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'logout',
-                                onTap: () async {
-                                  try {
-                                    await TokenStorage.deleteToken(); 
-                                    Navigator.pushReplacementNamed(context, '/');
-                                  } catch (e) {
-                                    print("Error occurred while deleting token: $e");
-                                    showFeedback(context, "Error occurred while logging out.", Colors.redAccent);
-                                  }
-                                },
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.logout_rounded, size: 18, color: theme.colorScheme.error),
-                                    const SizedBox(width: 12),
-                                    Text('Logout', style: TextStyle(color: theme.colorScheme.error, fontWeight: FontWeight.w500)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                     Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    IconButton(
+      style: IconButton.styleFrom(
+        backgroundColor: theme.colorScheme.surfaceContainerLow.withOpacity(0.5),
+        padding: const EdgeInsets.all(10),
+      ),
+      icon: Icon(
+        isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+        size: 20,
+      ),
+      onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+    ),
+    const SizedBox(width: 12),
+    const ProfileMenuButton(),
+  ],
+),
                     ],
                   ),
                 ),

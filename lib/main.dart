@@ -1,5 +1,6 @@
 import 'package:alphalens_fend/blocs/Extract_entity/extract_entity_cubit.dart';
 import 'package:alphalens_fend/blocs/company/company_cubit.dart';
+import 'package:alphalens_fend/blocs/delete_account/delete_account_cubit.dart';
 import 'package:alphalens_fend/blocs/login/login_cubit.dart';
 import 'package:alphalens_fend/blocs/otp/otp_cubit.dart';
 import 'package:alphalens_fend/data/repositories/auth/auth_repository.dart';
@@ -72,6 +73,11 @@ class AlphaLensApp extends StatelessWidget {
           ),
         ),  BlocProvider<OtpCubit>(
           create: (context) => OtpCubit(
+            RepositoryProvider.of<AuthRepository>(context),
+          ),
+        ),
+         BlocProvider<DeleteAccountCubit>(
+          create: (context) => DeleteAccountCubit(
             RepositoryProvider.of<AuthRepository>(context),
           ),
         ),

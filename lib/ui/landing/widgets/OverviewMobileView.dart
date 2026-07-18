@@ -196,6 +196,14 @@ class _OverviewMobileViewState extends State<OverviewMobileView> with SingleTick
                                 ),
                               ),
                               const SizedBox(height: 24),
+                               Text(
+                                '© 2024 AlphaLens. All rights reserved.\n Created by Manoj Bhatta.',                                  
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  height: 1.5,
+                                ),
+                              ),
                             ],
                           ),
                         ),

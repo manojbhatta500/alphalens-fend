@@ -61,6 +61,48 @@ class AuthRepository {
 }
 
 
+Future<bool> deleteAccount() async {
+  try {
+    final response = await _apiClient.delete('/delete-account');
+
+    if (response.statusCode == 200) {
+      developer.log("Account deletion successful: ${response.data}");
+      return true;
+    }
+    return false;
+
+  } on DioException catch (e) {
+    if (e.response != null) {
+      developer.log("Server responded with error status: ${e.response?.statusCode}");
+      developer.log("Error payload data map: ${e.response?.data}");
+
+      final data = e.response!.data;
+
+      if (data is Map && data.containsKey('detail')) {
+        final detail = data['detail'];
+
+        if (detail is Map && detail.containsKey('message')) {
+          throw Exception(detail['message']);
+        }
+
+        if (detail is String) {
+          throw Exception(detail);
+        }
+
+        if (detail is List && detail.isNotEmpty && detail.first is Map) {
+          throw Exception(detail.first['msg'] ?? 'Validation error.');
+        }
+      }
+
+      throw Exception('Account deletion failed (${e.response?.statusCode}).');
+    } else {
+      developer.log("Network/Server connectivity issue: ${e.message}");
+      throw Exception('Unable to reach server terminal module.');
+    }
+  }
+}
+
+
   Future<void> registerUser({
     required String username,
     required String email,
@@ -113,7 +155,6 @@ class AuthRepository {
       }
     }
   }
-
 
 
 
