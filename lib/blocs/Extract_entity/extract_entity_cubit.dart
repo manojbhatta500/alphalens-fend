@@ -19,7 +19,7 @@ class ExtractEntityCubit extends Cubit<ExtractEntityState> {
 
   emit(ExtractEntityLoading());
     final data = await _extractEntityRepository.getCompanyDetails(ticker);
-    if  (data.entities!.isEmpty) {
+    if  (data.entities.isEmpty) {
       emit(ExtractEntityError('No data found for the given ticker.'));
       return;
     }

@@ -285,9 +285,9 @@ class _CompanyState extends State<Company> with SingleTickerProviderStateMixin {
         unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
         labelStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
         tabs: const [
-          Tab(text: "Business Profile"),
-          Tab(text: "Financial Data"),
-          Tab(text: "Corporate Team"),
+          Tab(text: "Profile"),
+          Tab(text: "Finances"),
+          Tab(text: "Team"),
           Tab(text: "Entities")
         ],
       ),
@@ -453,13 +453,23 @@ class _CompanyState extends State<Company> with SingleTickerProviderStateMixin {
 
                 return InkWell(
                   onTap: () async {
-                    if (item.name.isEmpty) return;
-                    final Uri searchUrl = Uri.parse(
-                      'https://www.google.com/search?q=${Uri.encodeComponent(item.name)}'
-                    );
-                    if (await canLaunchUrl(searchUrl)) {
-                      await launchUrl(searchUrl, mode: LaunchMode.externalApplication);
-                    }
+                   print('🔗 [ENTITY LINK] ${item.name} tapped. Attempting to open Google search...');
+  if (item.name.isEmpty) return;
+  
+  final Uri searchUrl = Uri.parse(
+    'https://www.google.com/search?q=${Uri.encodeComponent(item.name)}'
+  );
+
+  try {
+    // Using platformDefault allows Android to choose in-app web views 
+    // if an external browser component isn't configured
+    await launchUrl(
+      searchUrl, 
+      mode: LaunchMode.platformDefault,
+    );
+  } catch (e) {
+    print("Could not launch url: $e");
+  }
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(

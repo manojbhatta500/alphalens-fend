@@ -1,5 +1,6 @@
 import 'package:alphalens_fend/blocs/theme/theme_cubit.dart';
 import 'package:alphalens_fend/ui/company/company.dart';
+import 'package:alphalens_fend/utils/token_storage.dart';
 import 'package:alphalens_fend/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -203,6 +204,15 @@ class Dashboard extends StatelessWidget {
                               ),
                               PopupMenuItem(
                                 value: 'logout',
+                                onTap: () async {
+                                  try {
+                                    await TokenStorage.deleteToken(); 
+                                    Navigator.pushReplacementNamed(context, '/');
+                                  } catch (e) {
+                                    print("Error occurred while deleting token: $e");
+                                    showFeedback(context, "Error occurred while logging out.", Colors.redAccent);
+                                  }
+                                },
                                 child: Row(
                                   children: [
                                     Icon(Icons.logout_rounded, size: 18, color: theme.colorScheme.error),

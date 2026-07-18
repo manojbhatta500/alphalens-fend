@@ -1,5 +1,8 @@
+import 'package:alphalens_fend/utils/endpoint.dart' as Endpoint;
 import 'package:alphalens_fend/utils/token_storage.dart';
 import 'package:dio/dio.dart';
+
+
 
 class ApiClient {
   final Dio _dio;
@@ -7,7 +10,7 @@ class ApiClient {
   ApiClient()
       : _dio = Dio(
           BaseOptions(
-            baseUrl: 'http://localhost:8000',
+            baseUrl: Endpoint.baseUrl,
             connectTimeout: const Duration(seconds: 20),
             receiveTimeout: const Duration(seconds: 20),
             headers: {

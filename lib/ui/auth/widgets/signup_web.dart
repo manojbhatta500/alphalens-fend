@@ -173,7 +173,9 @@ class _SignupWebState extends State<SignupWeb> {
                             _showFeedback(state.errorMessage, Colors.redAccent);
                           }
                           if (state is SignupSuccess) {
-                            _showFeedback(state.message, Colors.green[700]!);
+                            _showFeedback("Now verify your email via Otp", Colors.green[700]!);
+
+                            final String userEmail = _emailController.text.trim();
                             
                             // Wipe the view elements cleanly on a confirmed backend write
                             _usernameController.clear();
@@ -182,7 +184,12 @@ class _SignupWebState extends State<SignupWeb> {
                             _confirmPasswordController.clear();
 
                             // Redirect to your named login terminal view
-                            Navigator.pushReplacementNamed(context, '/login');
+                            // Navigator.pushReplacementNamed(context, '/login');
+                            Navigator.pushReplacementNamed(
+                            context, 
+                            '/otp-verify',
+                            arguments: userEmail, 
+                          );
                           }
                         },
                         builder: (context, state) {

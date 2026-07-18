@@ -113,4 +113,60 @@ class AuthRepository {
       }
     }
   }
+
+
+
+
+  Future<String> verifyOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        '/otp-verify',
+        data: {
+          'email': email,
+          'otp': otp,
+        },
+      );
+
+      // Matches: {"statuscode": 200, "message": "account verified..."}
+      if (response.statusCode == 200 && response.data is Map) {
+        final message = response.data['message'] ?? 'Account verified successfully.';
+        developer.log("OTP verification successful message: $message");
+        return message;
+      }
+
+      throw Exception('Verification failed.');
+
+    } on DioException catch (e) {
+      if (e.response != null) {
+        developer.log("Server responded with error status: ${e.response?.statusCode}");
+        developer.log("Error payload data map: ${e.response?.data}");
+        
+        final data = e.response!.data;
+        
+        // Matches your error payload structure: {"detail": {"statuscode": 400, "message": "incorrect otp"}}
+        if (data is Map && data.containsKey('detail') && data['detail'] is Map) {
+          final detailMap = data['detail'] as Map;
+          if (detailMap.containsKey('message')) {
+            throw Exception(detailMap['message']); // Will cleanly return "incorrect otp"
+          }
+        }
+        
+        // Fallback for standard FastAPI auto-validation 422 lists if they occur
+        if (data is Map && data.containsKey('detail') && data['detail'] is List) {
+          final list = data['detail'] as List;
+          if (list.isNotEmpty && list.first is Map) {
+            throw Exception(list.first['msg'] ?? 'Validation error.');
+          }
+        }
+
+        throw Exception('Verification failed (${e.response?.statusCode}).');
+      } else {
+        developer.log("Network/Server connectivity issue: ${e.message}");
+        throw Exception('Unable to reach server terminal module.');
+      }
+    }
+  }
 }

@@ -1,10 +1,12 @@
 import 'package:alphalens_fend/blocs/Extract_entity/extract_entity_cubit.dart';
 import 'package:alphalens_fend/blocs/company/company_cubit.dart';
 import 'package:alphalens_fend/blocs/login/login_cubit.dart';
+import 'package:alphalens_fend/blocs/otp/otp_cubit.dart';
 import 'package:alphalens_fend/data/repositories/auth/auth_repository.dart';
 import 'package:alphalens_fend/data/repositories/company/company_repository.dart';
 import 'package:alphalens_fend/data/repositories/company/extract_entity_repository.dart';
 import 'package:alphalens_fend/ui/auth/screens/login_screen.dart';
+import 'package:alphalens_fend/ui/auth/screens/otp_input_screen.dart';
 import 'package:alphalens_fend/ui/auth/screens/signup_screen.dart';
 import 'package:alphalens_fend/ui/dashboard/dashboard.dart';
 import 'package:alphalens_fend/ui/landing/landing_screen.dart';
@@ -20,7 +22,6 @@ import 'blocs/theme/theme_state.dart';
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
-    await TokenStorage.deleteToken();
 
      final isLoggedIn = await TokenStorage.isLoggedIn();
 
@@ -69,6 +70,10 @@ class AlphaLensApp extends StatelessWidget {
           create: (context) => LoginCubit(
             RepositoryProvider.of<AuthRepository>(context),
           ),
+        ),  BlocProvider<OtpCubit>(
+          create: (context) => OtpCubit(
+            RepositoryProvider.of<AuthRepository>(context),
+          ),
         ),
            BlocProvider<CompanyCubit>(
           create: (context) => CompanyCubit(
@@ -106,6 +111,10 @@ class AlphaLensApp extends StatelessWidget {
               '/login': (context) => const LoginScreen(),
               '/signup': (context) => const SignupScreen(),
               '/dashboard': (context) => const Dashboard(),
+              '/otp-verify': (context) {
+                final emailArg = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+                return OtpInputScreen(email: emailArg);
+      },
             },
           );
         },

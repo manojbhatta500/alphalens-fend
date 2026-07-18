@@ -210,14 +210,19 @@ class _SignupMobileState extends State<SignupMobile> {
                                           _showFeedback(state.errorMessage, Colors.redAccent);
                                         }
                                         if (state is SignupSuccess) {
-                                          _showFeedback(state.message, Colors.green[700]!);
+                                          _showFeedback("Now verify your email via Otp", Colors.green[700]!);
+                                          final String userEmail = _emailController.text.trim();
                                           
                                           _usernameController.clear();
                                           _emailController.clear();
                                           _passwordController.clear();
                                           _confirmPasswordController.clear();
 
-                                          Navigator.pushReplacementNamed(context, '/login');
+                                          Navigator.pushReplacementNamed(
+                                                    context, 
+                                                    '/otp-verify',
+                                                    arguments: userEmail, 
+                                                  );
                                         }
                                       },
                                       builder: (context, state) {
